@@ -6,7 +6,7 @@ import zad1.de.differential_evolution as de
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--function', type=int, help='Function number (1-2)')
+parser.add_argument('-f', '--function', type=int, help='Function number (1-6)')
 parser.add_argument('--dim_number', type=int, help='Number of dimensions')
 parser.add_argument('-n', '--n_particle', type=int, help='Number of particles (PSO)')
 parser.add_argument('--inertion_factor', type=float, help='Inertion factor (PSO)')

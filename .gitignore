@@ -1,1 +1,6 @@
 .idea
+/zad1/__pycache__
+/zad1/de/__pycache__
+/zad1/pso/__pycache__
+/zad1/pso_de/__pycache__
+.DS_Store
