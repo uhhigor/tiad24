@@ -1,24 +1,24 @@
 import random
 
-from bat import Bat
+from zad2.bat.bat import Bat
+from zad2.function import Function
 
 
 class BatAlgorithm:
-    def __init__(self, n, dim_number, x_min, x_max, f_min, f_max, alpha, gamma):
+    def __init__(self, n, dim_number, f_min, f_max, alpha, gamma, fitness: Function):
         self.n = n
         self.dim_number = dim_number
-        self.x_min = x_min
-        self.x_max = x_max
+        self.x_min = fitness.x_min
+        self.x_max = fitness.x_max
         self.f_min = f_min
         self.f_max = f_max
 
         self.alpha = alpha
         self.gamma = gamma
 
-        self.population = self.init_population()
+        self.fitness = fitness
 
-    def fitness(self, x: list) -> float:
-        pass
+        self.population = self.init_population()
 
     def init_population(self) -> list:
         population = []
