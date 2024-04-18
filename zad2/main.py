@@ -1,7 +1,7 @@
 import function
 import math
-from zad2.bat.bat_algorithm import BatAlgorithm
+from bat.bat_algorithm import run_algorithm
 
-batalg = BatAlgorithm(100, 20, 0, 5, 0.2, 0.5, function.Sphere())
-result = batalg.run(100)
-print(round(result, 3))
+best_pos, best_fit = run_algorithm(20, 1000, 1000, function.Levy(), 0, 2, 0.9, 0.9)
+print(round(best_fit, 4))
+print(best_pos)

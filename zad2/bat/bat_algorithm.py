@@ -1,65 +1,70 @@
+import math
 import random
 
-from zad2.bat.bat import Bat
 from zad2.function import Function
 
 
-class BatAlgorithm:
-    def __init__(self, n, dim_number, f_min, f_max, alpha, gamma, fitness: Function):
-        self.n = n
-        self.dim_number = dim_number
-        self.x_min = fitness.x_min
-        self.x_max = fitness.x_max
-        self.f_min = f_min
-        self.f_max = f_max
+def init_population(function: Function, dim: int, pop_size: int) -> tuple:
+    positions = []
+    velocities = []
+    frequencies = []
+    pulse_rates = []
+    loudness = []
+    for i in range(pop_size):
+        position = [random.uniform(function.x_min, function.x_max) for _ in range(dim)]
+        velocity = [0 for _ in range(dim)]
+        frequency = 0
+        pulse_rate = 1
+        loud = 2
 
-        self.alpha = alpha
-        self.gamma = gamma
+        positions.append(position)
+        velocities.append(velocity)
+        frequencies.append(frequency)
+        pulse_rates.append(pulse_rate)
+        loudness.append(loud)
+    return positions, velocities, frequencies, pulse_rates, loudness
 
-        self.fitness = fitness
 
-        self.population = self.init_population()
+def run_algorithm(dim: int, pop_size: int, iterations: int,
+                  function: Function, f_min: float, f_max: float,
+                  alpha: float, gamma: float):
+    positions, velocities, frequencies, pulse_rates, loudness = init_population(function, dim, pop_size)
 
-    def init_population(self) -> list:
-        population = []
-        for i in range(self.n):
-            x = []
-            v = []
-            for j in range(self.dim_number):
-                x.append(random.uniform(self.x_min, self.x_max))
-                v.append(random.uniform(0, 1))
-            population.append(Bat(x, v, self.f_min, self.f_max, self.alpha, self.gamma))
-        return population
+    temp_positions = positions.copy()
+    fitness = [function(position) for position in positions]
 
-    def update_bat_fitness(self, bat: Bat):
-        bat.fitness = self.fitness(bat.x)
+    best_index = fitness.index(min(fitness))
+    best_solution = positions[best_index]
+    best_fitness = fitness[best_index]
+    for it in range(iterations):
+        avg_loudness = sum(loudness) / pop_size
+        for i in range(pop_size):
+            frequencies[i] = f_min + ((f_max - f_min) * random.uniform(0, 1))
+            for j in range(dim):
+                velocities[i][j] += (positions[i][j] - best_solution[j]) * frequencies[i]
+                temp_positions[i][j] = positions[i][j] + velocities[i][j]
 
-    def update_fitness(self):
-        for bat in self.population:
-            self.update_bat_fitness(bat)
+            if random.uniform(0, 1) < pulse_rates[i]:
+                beta = random.uniform(-1, 1)
+                for j in range(dim):
+                    temp_positions[i][j] = positions[i][j] + (beta * avg_loudness)
 
-    def get_best(self) -> Bat:
-        best_bat = self.population[0]
-        for bat in self.population:
-            if bat.fitness < best_bat.fitness:
-                best_bat = bat
-        return best_bat
+            for j in range(dim):
+                if temp_positions[i][j] < function.x_min:
+                    temp_positions[i][j] = function.x_min
+                elif temp_positions[i][j] > function.x_max:
+                    temp_positions[i][j] = function.x_max
 
-    def avg_loudness(self):
-        return sum([bat.loudness for bat in self.population]) / self.n
+            if random.uniform(0, 1) < loudness[i] and function(temp_positions[i]) < best_fitness:
+                positions[i] = temp_positions[i]
+                fitness[i] = function(positions[i])
+                loudness[i] *= alpha
+                pulse_rates[i] = (1 - math.exp(-gamma * it))*0.5
+                print(f"Bat {i} found better solution: {fitness[i]}")
 
-    def run(self, iterations: int) -> float:
-        for it in range(iterations):
-            best_bat = self.get_best()
-            for bat in self.population:
-                bat.update_position()
-                bat.update_velocity(best_bat.x)
-                if random.uniform(0, 1) < bat.emission:
-                    for i in range(self.dim_number):
-                        bat.x[i] = bat.x[i] + random.uniform(-1, 1) * self.avg_loudness()
-                    self.update_bat_fitness(bat)
-                if random.uniform(0, 1) < bat.emission:
-                    bat.update_loudness()
-                    bat.update_emission()
-                self.update_bat_fitness(bat)
-        return self.get_best().fitness
+            best_index = fitness.index(min(fitness))
+            best_solution = positions[best_index]
+            best_fitness = fitness[best_index]
+
+        print(f"Generation {it}: Best Fitness: {best_fitness}, Best Solution: {best_solution}")
+    return best_solution, best_fitness
