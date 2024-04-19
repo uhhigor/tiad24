@@ -1,10 +1,8 @@
 import math
 import random
 
-from zad2.function import Function
 
-
-def init_population(function: Function, dim: int, pop_size: int) -> tuple:
+def init_population(function, dim: int, pop_size: int) -> tuple:
     positions = []
     velocities = []
     frequencies = []
@@ -26,7 +24,7 @@ def init_population(function: Function, dim: int, pop_size: int) -> tuple:
 
 
 def run_algorithm(dim: int, pop_size: int, iterations: int,
-                  function: Function, f_min: float, f_max: float,
+                  function, f_min: float, f_max: float,
                   alpha: float, gamma: float):
     positions, velocities, frequencies, pulse_rates, loudness = init_population(function, dim, pop_size)
 

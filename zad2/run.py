@@ -1,16 +1,20 @@
 import argparse
 import function
+import time
+import bat.bat_algorithm as bat
+import boa.boa_algorithm as boa
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--function', type=int, help='Function number (1-6)')
 parser.add_argument('--dim_number', type=int, help='Number of dimensions')
-parser.add_argument('-n', '--n_particle', type=int, help='Number of particles (PSO)')
-parser.add_argument('--inertion_factor', type=float, help='Inertion factor (PSO)')
-parser.add_argument('--cognitive_const', type=float, help='Cognitive constant (PSO)')
-parser.add_argument('--social_const', type=float, help='Social constant (PSO)')
-parser.add_argument('--iterations', type=int, help='Number of iterations (DE)')
-parser.add_argument('--pc', type=float, help='Crossover probability (DE)')
-parser.add_argument('--F', type=float, help='Amplification factor (DE)')
+parser.add_argument('-p', '--population', type=int, help='Number of population')
+parser.add_argument('--iterations', type=int, help='Number of iterations')
+parser.add_argument('--f_min', type=float, help='f_min (BAT)')
+parser.add_argument('--f_max', type=float, help='f_max (BAT)')
+parser.add_argument('-a', '--alfa', type=float, help='Alfa (BAT)')
+parser.add_argument('-b', '--beta', type=float, help='Beta (BAT)')
+parser.add_argument('--probability', type=float, help='p (BOA)')
+
 
 args = parser.parse_args()
 
@@ -25,65 +29,59 @@ func_dict = {
 
 func = func_dict[args.function]
 
-sum_pso = 0
-sum_de = 0
-sum_pso_de = 0
+sum_bat = 0
+sum_boa = 0
+sum_boa_levy = 0
 
-pso_time_ms = 0
-de_time_ms = 0
-pso_de_time_ms = 0
+bat_time_ms = 0
+boa_time_ms = 0
+boa_levy_time_ms = 0
 
 for i in range(30):
-    print(str(i) + " | " + "==" * 20)
+    print(str(i+1) + " | " + "==" * 20)
     start = time.time()
-    result_pso = algorithm.run_algorithm(
-        func,
+    best_pos, best_fit = bat.run_algorithm(
         args.dim_number,
-        args.n_particle,
+        args.population,
         args.iterations,
-        args.inertion_factor,
-        args.cognitive_const,
-        args.social_const)
-    end = time.time()
-    pso_time_ms += (end - start) * 1000
-    print('PSO: Best value: ' + str(round(result_pso.best_fitness, 3)) + ' for [', end='')
-    for r in result_pso.best_x:
-        print(round(r, 3), end='; ')
-    print(']')
-
-    start = time.time()
-    result_de_best, result_de_value = de.differential_evolution(args.iterations, func, args.dim_number, args.pc, args.F, args.n_particle)
-    end = time.time()
-    de_time_ms += (end - start) * 1000
-    print('DE: Best value: ' + str(round(result_de_value, 3)) + ' for [', end='')
-    for r in result_de_best:
-        print(round(r, 3), end='; ')
-    print(']')
-
-    start = time.time()
-    result_pso_de = pso_de.run_algorithm(
         func,
-        args.dim_number,
-        args.n_particle,
-        args.iterations,
-        args.F,
-        args.pc,
-        args.inertion_factor,
-        args.cognitive_const,
-        args.social_const)
+        args.f_min,
+        args.f_max,
+        args.alfa,
+        args.beta)
     end = time.time()
-    pso_de_time_ms += (end - start) * 1000
-    print('PSO+DE: Best value: ' + str(round(result_pso_de.best_fitness, 3)) + ' for [', end='')
-    for r in result_pso_de.best_x:
-        print(round(r, 3), end='; ')
-    print(']')
+    bat_time_ms += (end - start) * 1000
+    sum_bat += best_fit
+    print("BAT: " + str(best_fit) + " | " + str((end - start) * 1000) + " ms")
 
-    sum_pso += result_pso.best_fitness
-    sum_de += result_de_value
-    sum_pso_de += result_pso_de.best_fitness
+    start = time.time()
+    best_pos, best_fit = boa.run_algorithm(
+        args.dim_number,
+        args.population,
+        args.iterations,
+        func,
+        args.probability,
+        False)
+    end = time.time()
+    boa_time_ms += (end - start) * 1000
+    sum_boa += best_fit
+    print("BOA: " + str(best_fit) + " | " + str((end - start) * 1000) + " ms")
 
-print("==" * 20)
-print('Function: ' + func.name() + ", Global minimum: " + str(func.global_min_value))
-print('PSO: Average value: ' + str(round(sum_pso / 30, 3)) + ", Average time: " + str(round(pso_time_ms / 30, 0)) + " ms")
-print('DE: Average value: ' + str(round(sum_de / 30, 3)), ", Average time: " + str(round(de_time_ms / 30, 0)) + " ms")
-print('PSO+DE: Average value: ' + str(round(sum_pso_de / 30, 3)), ", Average time: " + str(round(pso_de_time_ms / 30, 0)) + " ms")
+    start = time.time()
+    best_pos, best_fit = boa.run_algorithm(
+        args.dim_number,
+        args.population,
+        args.iterations,
+        func,
+        args.probability,
+        True)
+    end = time.time()
+    boa_levy_time_ms += (end - start) * 1000
+    sum_boa_levy += best_fit
+    print("BOA+LEVY: " + str(best_fit) + " | " + str((end - start) * 1000) + " ms")
+
+print("==" * 30)
+print("BAT: " + str(round(sum_bat / 30, 3)) + " | " + str(round(bat_time_ms / 30, 0)) + " ms")
+print("BOA: " + str(round(sum_boa / 30, 3)) + " | " + str(round(boa_time_ms / 30, 0)) + " ms")
+print("BOA+LEVY: " + str(round(sum_boa_levy / 30, 3)) + " | " + str(round(boa_levy_time_ms / 30, 0)) + " ms")
+

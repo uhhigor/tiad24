@@ -2,8 +2,6 @@ import random
 import numpy as np
 
 from scipy.special import gamma
-from zad2.boa.butterfly import Butterfly
-from zad2.function import Function
 
 
 def levy_flight(dim: int) -> np.ndarray:
@@ -16,7 +14,7 @@ def levy_flight(dim: int) -> np.ndarray:
     return step
 
 
-def init_population(function: Function, dim: int, pop_size: int) -> list:
+def init_population(function, dim: int, pop_size: int) -> list:
     butterflies = []
     for i in range(pop_size):
         sensory_modality = random.uniform(0, 1)
@@ -28,7 +26,7 @@ def init_population(function: Function, dim: int, pop_size: int) -> list:
     return butterflies
 
 
-def run_algorithm2(dim: int, pop_size: int, iterations: int, function: Function, prob: float, levy: bool = False):
+def run_algorithm(dim: int, pop_size: int, iterations: int, function, prob: float, levy: bool = False):
     butterflies = init_population(function, dim, pop_size)
 
     best_index = 0
@@ -63,3 +61,12 @@ def run_algorithm2(dim: int, pop_size: int, iterations: int, function: Function,
         # print("New best solution: ", best_solution.position, best_solution_value)
 
     return best_solution.position, best_solution_value
+
+
+class Butterfly:
+    def __init__(self, sensory_modality, stimulus, power_exponent, dim: int, function):
+        self.sensory_modality = sensory_modality
+        self.stimulus = stimulus
+        self.power_exponent = power_exponent
+        self.position = [random.uniform(function.x_min, function.x_max) for _ in range(dim)]
+
