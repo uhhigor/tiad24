@@ -1,7 +1,6 @@
 import function
-import math
 from bat.bat_algorithm import run_algorithm
-from boa.boa_algorithm import run_algorithm
+from boa.boa_algorithm import run_algorithm2
 
 
 # Najlepiej dzialalo na parametrach:
@@ -12,11 +11,12 @@ from boa.boa_algorithm import run_algorithm
 # pop_size: 1000
 # iterations: 1000
 
-#best_pos, best_fit = run_algorithm(20, 1000, 1000, function.Levy(), 0, 2, 0.9, 0.9)
-#print(round(best_fit, 4))
-#print(best_pos)
+best_pos, best_fit = run_algorithm(20, 100, 1000, function.Schwefel(), 0, 2, 0.9, 0.9)
+print(round(best_fit, 4))
+print(best_pos)
 
-best_pos = run_algorithm(20, 50, 1000, function.Ackley(), 0.5)
+best_pos, best_value = run_algorithm2(20, 100, 1000, function.Schwefel(), 0.8)
+print(round(best_value, 4))
 print(best_pos)
 
 

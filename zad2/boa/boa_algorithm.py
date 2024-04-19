@@ -16,14 +16,14 @@ def init_population(function: Function, dim: int, pop_size: int) -> list:
     return butterflies
 
 
-def run_algorithm(dim: int, pop_size: int, iterations: int, function: Function, prob: float):
+def run_algorithm2(dim: int, pop_size: int, iterations: int, function: Function, prob: float):
     butterflies = init_population(function, dim, pop_size)
 
     best_index = 0
     best_solution = butterflies[best_index]
+    best_solution_value = function(best_solution.position)
 
     for it in range(iterations):
-        print(best_solution.position, function(best_solution.position))
         for i in range(pop_size):
             fragrance = butterflies[i].sensory_modality * pow(butterflies[i].stimulus, butterflies[i].power_exponent)
             r = random.uniform(0, 1)
@@ -42,6 +42,9 @@ def run_algorithm(dim: int, pop_size: int, iterations: int, function: Function, 
             butterflies[i].power_exponent = 0.1 + (0.2 * it / iterations)
             if function(butterflies[i].position) < function(best_solution.position):
                 best_solution = butterflies[i]
-                print("New best solution: ", i, function(butterflies[i].position))
+                best_solution_value = function(butterflies[i].position)
+                # print("New best solution: ", best_solution_value)
 
-    return best_solution.position
+        #print("New best solution: ", best_solution.position, best_solution_value)
+
+    return best_solution.position, best_solution_value

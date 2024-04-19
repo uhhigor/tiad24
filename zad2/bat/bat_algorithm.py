@@ -60,11 +60,11 @@ def run_algorithm(dim: int, pop_size: int, iterations: int,
                 fitness[i] = function(positions[i])
                 loudness[i] *= alpha
                 pulse_rates[i] = (1 - math.exp(-gamma * it))*0.5
-                print(f"Bat {i} found better solution: {fitness[i]}")
+                #print(f"Bat {i} found better solution: {fitness[i]}")
 
             best_index = fitness.index(min(fitness))
             best_solution = positions[best_index]
             best_fitness = fitness[best_index]
 
-        print(f"Generation {it}: Best Fitness: {best_fitness}, Best Solution: {best_solution}")
+        #print(f"Generation {it}: Best Fitness: {best_fitness}, Best Solution: {best_solution}")
     return best_solution, best_fitness
