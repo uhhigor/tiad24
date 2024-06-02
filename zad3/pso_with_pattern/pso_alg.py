@@ -60,6 +60,8 @@ def run_pso(fitness_function: (), iterations: int,
             exemplars_i_last = swarm_exemplars_i_last[swarm_no]
             swarm_particles_no = len(positions)
             for i in range(swarm_particles_no):
+
+                # PATTERN
                 # crossover
                 child = [0] * DIM_NUMBER
                 for dim in range(DIM_NUMBER):
@@ -82,6 +84,24 @@ def run_pso(fitness_function: (), iterations: int,
                 if child_fitness < fitness_function(exemplars[i]):
                     exemplars[i] = child
 
+                exemplars_i_last[i].append(child_fitness)
+                # stagnation check
+                if len(exemplars_i_last[i]) == SG:
+                    if max(exemplars_i_last[i]) - min(exemplars_i_last[i]) <= 0.01:
+                        # Select exemplar_i by the 20% tournament selection
+                        tournament = []
+                        for _ in range(int(n_particles * 0.2)):
+                            k = random.randint(0, n_particles - 1)
+                            tournament.append((k, fitness[k]))
+                        min_tournament = float('inf')
+                        for t in tournament:
+                            if t[1] < min_tournament:
+                                min_tournament = t[1]
+                                exemplars[i] = positions[t[0]]
+                    exemplars_i_last[i].pop(0)
+
+                # PATTERN END
+
                 # particle update
                 for dim in range(DIM_NUMBER):
                     velocities[i][dim] = inertion_factor * velocities[i][dim] + \
@@ -101,21 +121,6 @@ def run_pso(fitness_function: (), iterations: int,
                     if current_fitness < fitness_function(G):
                         G = positions[i].copy()
 
-                exemplars_i_last[i].append(child_fitness)
-                # stagnation check
-                if len(exemplars_i_last[i]) == SG:
-                    if max(exemplars_i_last[i]) - min(exemplars_i_last[i]) <= 0.01:
-                        # Select exemplar_i by the 20% tournament selection
-                        tournament = []
-                        for _ in range(int(n_particles * 0.2)):
-                            k = random.randint(0, n_particles - 1)
-                            tournament.append((k, fitness[k]))
-                        min_tournament = float('inf')
-                        for t in tournament:
-                            if t[1] < min_tournament:
-                                min_tournament = t[1]
-                                exemplars[i] = positions[t[0]]
-                    exemplars_i_last[i].pop(0)
             #print(f"Swarm {swarm_no} iteration {it} best fitness: {fitness_function(G)}")
 
     return G, fitness_function(G)
